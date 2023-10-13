@@ -5,10 +5,14 @@ from datetime import datetime
 
 # users
 
+class GetUsersModel(BaseModel):
+    min_age: Optional[int] = Field(Query(None, example=18, description='Минимальный возраст'))
+    max_age: Optional[int] = Field(Query(None, example=65, description='Максимальный возраст'))
+
 class RegisterUserRequest(BaseModel):
-    name: str
-    surname: str
-    age: int
+    name: str = Field("Bob")
+    surname: str = Field("Johnson")
+    age: int = Field(27)
 
 class UserModel(BaseModel):
     id: int = Field(1)

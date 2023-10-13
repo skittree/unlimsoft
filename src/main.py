@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
 
-from endpoints import cities, picnics, users
+from routers import cities, picnics, users
 
 app = FastAPI()
 app.include_router(cities.router)
