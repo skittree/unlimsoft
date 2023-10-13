@@ -4,7 +4,7 @@ from pydantic import parse_obj_as
 from sqlalchemy.orm import joinedload
 from database import engine, Session, Base, Picnic, PicnicRegistration, City, User
 import datetime as dt
-from models import CreatePicnicModel, GetPicnicsModel, BasePicnicModel, UsersPicnicModel, UserPicnicModel, UserModel
+from models import CreatePicnicModel, GetPicnicsModel, BasePicnicModel, RegisterUserPicnicRequest, UsersPicnicModel, UserPicnicModel, UserModel
 
 router = APIRouter(
     prefix="/picnics",
@@ -55,24 +55,24 @@ def create_picnic(model: CreatePicnicModel = Depends()) -> BasePicnicModel:
     )
 
 @router.post('/{picnic_id}/register', summary='Picnic Registration', response_model=UserPicnicModel)
-def register_to_picnic(picnic_id: int, user_id: int = Query(..., description='ID пользователя')) -> UserPicnicModel:
+def register_to_picnic(model: RegisterUserPicnicRequest = Depends()) -> UserPicnicModel:
     """
     Регистрация пользователя на пикник
     """
     s = Session()
-    picnic = s.query(Picnic).join(Picnic.city).filter(Picnic.id == picnic_id).first()
+    picnic = s.query(Picnic).join(Picnic.city).filter(Picnic.id == model.picnic_id).first()
     if picnic is None:
         raise HTTPException(status_code=400, detail='Пикника с указанным picnic_id не существует')
     
-    user = s.query(User).filter(User.id == user_id).first()
+    user = s.query(User).filter(User.id == model.user_id).first()
     if user is None:
         raise HTTPException(status_code=400, detail='Пользователя с указанным user_id не существует')
 
-    existing_registration = s.query(PicnicRegistration).filter(PicnicRegistration.user_id == user_id, PicnicRegistration.picnic_id == picnic_id).first()
+    existing_registration = s.query(PicnicRegistration).filter(PicnicRegistration.user_id == model.user_id, PicnicRegistration.picnic_id == model.picnic_id).first()
     if existing_registration is not None:
         raise HTTPException(status_code=400, detail='Пользователь уже зарегистрирован на этот пикник')
     
-    pr = PicnicRegistration(user_id=user_id, picnic_id=picnic_id)
+    pr = PicnicRegistration(user_id=model.user_id, picnic_id=model.picnic_id)
 
     s.add(pr)
     s.commit()

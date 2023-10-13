@@ -1,6 +1,9 @@
-from fastapi import HTTPException, Query, APIRouter
+from typing import List
+from fastapi import HTTPException, Query, APIRouter, Depends
+from pydantic import parse_obj_as
 from database import engine, Session, Base, City
 from external_requests import CheckCityExisting
+from models import BaseCityModel, CreateCityModel, GetCityModel
 
 router = APIRouter(
     prefix="/cities",
@@ -8,33 +11,33 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.post('/', summary='Create City', description='Создание города по его названию')
-def create_city(city: str = Query(..., description="Название города")):
-    if city is None:
-        raise HTTPException(status_code=400, detail='Параметр city должен быть указан')
+@router.post('/', summary='Create City', response_model=BaseCityModel)
+def create_city(model: CreateCityModel = Depends()) -> BaseCityModel:
+    """
+    Создание города по его названию
+    """
     check = CheckCityExisting()
-    if not check.check_existing(city):
-        raise HTTPException(status_code=400, detail='Параметр city должен быть существующим городом')
-
-    city_object = Session().query(City).filter(City.name == city.capitalize()).first()
+    if not check.check_existing(model.name):
+        raise HTTPException(status_code=400, detail='Параметр name должен быть существующим городом')
+    s = Session()
+    city_object = s.query(City).filter(City.name == model.name.capitalize()).first()
     if city_object is None:
-        city_object = City(name=city.capitalize())
-        s = Session()
+        city_object = City(name=model.name.capitalize())
         s.add(city_object)
         s.commit()
 
-    return {'id': city_object.id, 'name': city_object.name, 'weather': city_object.weather} # почему не возвращаем/принимаем pydantic модели?
+    return BaseCityModel.from_orm(city_object)
 
-@router.get('/', summary='Get Cities', description='Получение списка городов или города по названию')
-def cities_list(q: str = Query(None, description="Название города")):
+@router.get('/', summary='Get Cities', response_model=List[BaseCityModel])
+def cities_list(model: GetCityModel = Depends()) -> List[BaseCityModel]:
     """
     Получение списка городов
     """
     query = Session().query(City)
     
-    if q is not None:
-        query = query.filter(City.name == q.capitalize())
+    if model.name is not None:
+        query = query.filter(City.name == model.name.capitalize())
     
     cities = query.all()
 
-    return [{'id': city.id, 'name': city.name, 'weather': city.weather} for city in cities]
+    return parse_obj_as(List[BaseCityModel], cities)
