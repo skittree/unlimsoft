@@ -3,6 +3,8 @@ from starlette.datastructures import Secret
 
 config = Config(".env")
 
+WEATHER_API_KEY = '99ba78ee79a2a24bc507362c5288a81b'
+
 POSTGRES_USER = config("POSTGRES_USER", cast=str)
 POSTGRES_PASSWORD = config("POSTGRES_PASSWORD", cast=Secret)
 POSTGRES_SERVER = config("POSTGRES_SERVER", cast=str)

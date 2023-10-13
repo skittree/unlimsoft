@@ -2,7 +2,7 @@ from typing import List
 from fastapi import HTTPException, Query, APIRouter, Depends
 from pydantic import parse_obj_as
 from database import engine, Session, Base, City
-from external_requests import CheckCityExisting
+from external_requests import GetWeatherRequest
 from models import BaseCityModel, CreateCityModel, GetCityModel
 
 router = APIRouter(
@@ -16,9 +16,10 @@ def create_city(model: CreateCityModel = Depends()) -> BaseCityModel:
     """
     Создание города по его названию
     """
-    check = CheckCityExisting()
-    if not check.check_existing(model.name):
+    weather = GetWeatherRequest().get_weather(model.name)
+    if not weather:
         raise HTTPException(status_code=400, detail='Параметр name должен быть существующим городом')
+    
     s = Session()
     city_object = s.query(City).filter(City.name == model.name.capitalize()).first()
     if city_object is None:
