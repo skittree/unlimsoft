@@ -11,6 +11,20 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+@router.get('/', summary='Get Cities', response_model=List[BaseCityModel])
+def get_cities(model: GetCityModel = Depends()) -> List[BaseCityModel]:
+    """
+    Получение списка городов
+    """
+    query = Session().query(City)
+    
+    if model.name is not None:
+        query = query.filter(City.name == model.name.capitalize())
+    
+    cities = query.all()
+
+    return parse_obj_as(List[BaseCityModel], cities)
+
 @router.post('/', summary='Create City', response_model=BaseCityModel)
 def create_city(model: CreateCityModel = Depends()) -> BaseCityModel:
     """
@@ -28,17 +42,3 @@ def create_city(model: CreateCityModel = Depends()) -> BaseCityModel:
         s.commit()
 
     return BaseCityModel.from_orm(city_object)
-
-@router.get('/', summary='Get Cities', response_model=List[BaseCityModel])
-def cities_list(model: GetCityModel = Depends()) -> List[BaseCityModel]:
-    """
-    Получение списка городов
-    """
-    query = Session().query(City)
-    
-    if model.name is not None:
-        query = query.filter(City.name == model.name.capitalize())
-    
-    cities = query.all()
-
-    return parse_obj_as(List[BaseCityModel], cities)

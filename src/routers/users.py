@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 @router.get('/', summary='Users List', response_model=List[BaseUserModel])
-def users_list(model: GetUsersModel = Depends()) -> List[BaseUserModel]:
+def get_users(model: GetUsersModel = Depends()) -> List[BaseUserModel]:
     """
     Список пользователей
     """
@@ -26,7 +26,7 @@ def users_list(model: GetUsersModel = Depends()) -> List[BaseUserModel]:
     return parse_obj_as(List[BaseUserModel], users)
 
 @router.post('/', summary='Create User', response_model=BaseUserModel)
-def register_user(user: CreateUserModel) -> BaseUserModel:
+def create_user(user: CreateUserModel) -> BaseUserModel:
     """
     Регистрация пользователя
     """
