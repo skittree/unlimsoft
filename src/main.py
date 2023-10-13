@@ -7,7 +7,7 @@ from models import RegisterUserRequest, UserModel
 app = FastAPI()
 
 
-@app.get('/create-city/', summary='Create City', description='Создание города по его названию')
+@app.post('/create-city/', summary='Create City', description='Создание города по его названию')
 def create_city(city: str = Query(description="Название города", default=None)):
     if city is None:
         raise HTTPException(status_code=400, detail='Параметр city должен быть указан')
@@ -15,32 +15,45 @@ def create_city(city: str = Query(description="Название города", d
     if not check.check_existing(city):
         raise HTTPException(status_code=400, detail='Параметр city должен быть существующим городом')
 
-    city_object = Session().query(City).filter(City.name == city.capitalize()).first()
+    city_object = Session().query(City).filter(City.name == city.capitalize()).first() # что если набрать город с нижним реестром?
     if city_object is None:
         city_object = City(name=city.capitalize())
         s = Session()
         s.add(city_object)
         s.commit()
 
-    return {'id': city_object.id, 'name': city_object.name, 'weather': city_object.weather}
+    return {'id': city_object.id, 'name': city_object.name, 'weather': city_object.weather} # почему не возвращаем/принимаем pydantic модели?
 
 
-@app.post('/get-cities/', summary='Get Cities')
+@app.get('/get-cities/', summary='Get Cities', description='Получение списка городов или города по названию')
 def cities_list(q: str = Query(description="Название города", default=None)):
     """
     Получение списка городов
     """
-    cities = Session().query(City).all()
+    query = Session().query(City)
+    
+    if q is not None:
+        query = query.filter(City.name == q.capitalize())
+    
+    cities = query.all()
 
     return [{'id': city.id, 'name': city.name, 'weather': city.weather} for city in cities]
 
 
-@app.post('/users-list/', summary='')
-def users_list():
+@app.get('/users-list/', summary='')
+def users_list(minage: int = Query(description="Минимальный возраст", default=None),
+               maxage: int = Query(description="Максимальный возраст", default=None)):
     """
     Список пользователей
     """
-    users = Session().query(User).all()
+    users = Session().query(User)
+    if minage is not None:
+        users = users.filter(User.age >= minage)
+    if maxage is not None:
+        users = users.filter(User.age <= maxage)
+
+    users = users.all()
+
     return [{
         'id': user.id,
         'name': user.name,
@@ -89,8 +102,13 @@ def all_picnics(datetime: dt.datetime = Query(default=None, description='Вре�
     } for pic in picnics]
 
 
-@app.get('/picnic-add/', summary='Picnic Add', tags=['picnic'])
-def picnic_add(city_id: int = None, datetime: dt.datetime = None):
+@app.post('/picnic-add/', summary='Picnic Add', tags=['picnic'])
+def picnic_add(city_id: int = Query(default=None, description='ID города'), 
+               datetime: dt.datetime = Query(default=None, description='Время провождения пикника')):
+    city = Session().query(City).filter(City.id == city_id).first()
+    if city is None:
+        raise HTTPException(status_code=400, detail='Города с указанным city_id не существует')
+    
     p = Picnic(city_id=city_id, time=datetime)
     s = Session()
     s.add(p)
@@ -98,16 +116,15 @@ def picnic_add(city_id: int = None, datetime: dt.datetime = None):
 
     return {
         'id': p.id,
-        'city': Session().query(City).filter(City.id == p.id).first().name,
+        'city': city.name,
         'time': p.time,
     }
 
 
-@app.get('/picnic-register/', summary='Picnic Registration', tags=['picnic'])
+@app.post('/picnic-register/', summary='Picnic Registration', tags=['picnic'])
 def register_to_picnic(*_, **__,):
     """
     Регистрация пользователя на пикник
-    (Этот эндпойнт необходимо реализовать в процессе выполнения тестового задания)
     """
     # TODO: Сделать логику
     return ...
