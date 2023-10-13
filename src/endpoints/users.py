@@ -8,7 +8,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get('/users-list/', summary='')
+@router.get('/', summary='')
 def users_list(minage: int = Query(description="Минимальный возраст", default=None),
                maxage: int = Query(description="Максимальный возраст", default=None)):
     """
@@ -29,7 +29,7 @@ def users_list(minage: int = Query(description="Минимальный возр�
         'age': user.age,
     } for user in users]
 
-@router.post('/register-user/', summary='CreateUser', response_model=UserModel)
+@router.post('/', summary='Create User', response_model=UserModel)
 def register_user(user: RegisterUserRequest):
     """
     Регистрация пользователя

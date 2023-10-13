@@ -8,7 +8,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get('/all-picnics/', summary='All Picnics')
+@router.get('/', summary='All Picnics')
 def all_picnics(datetime: dt.datetime = Query(default=None, description='Время пикника (по умолчанию не задано)'),
                 past: bool = Query(default=True, description='Включая уже прошедшие пикники')):
     """
@@ -34,7 +34,7 @@ def all_picnics(datetime: dt.datetime = Query(default=None, description='Вре�
             for pr in Session().query(PicnicRegistration).filter(PicnicRegistration.picnic_id == pic.id)],
     } for pic in picnics]
 
-@router.post('/picnic-add/', summary='Picnic Add')
+@router.post('/', summary='Picnic Add')
 def picnic_add(city_id: int = Query(default=None, description='ID города'), 
                datetime: dt.datetime = Query(..., description='Время провождения пикника')):
     city = Session().query(City).filter(City.id == city_id).first()
@@ -52,9 +52,8 @@ def picnic_add(city_id: int = Query(default=None, description='ID города')
         'time': p.time,
     }
 
-@router.post('/picnic-register/', summary='Picnic Registration')
-def register_to_picnic(user_id: int = Query(..., description='ID пользователя'),
-                       picnic_id: int = Query(..., description='ID пикника')):
+@router.post('/{picnic_id}/register', summary='Picnic Registration')
+def register_to_picnic(picnic_id: int, user_id: int = Query(..., description='ID пользователя')):
     """
     Регистрация пользователя на пикник
     """
