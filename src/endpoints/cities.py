@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Query, APIRouter
-from external_requests import CheckCityExisting
 from database import engine, Session, Base, City
+from external_requests import CheckCityExisting
 
 router = APIRouter(
     prefix="/cities",

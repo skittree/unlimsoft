@@ -1,5 +1,4 @@
 from fastapi import HTTPException, Query, APIRouter
-from external_requests import CheckCityExisting
 from database import engine, Session, Base, User
 from models import RegisterUserRequest, UserModel
 

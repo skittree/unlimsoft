@@ -1,6 +1,4 @@
-import datetime as dt
 from fastapi import FastAPI, HTTPException, Query
-from database import engine, Session, Base, City, User, Picnic, PicnicRegistration
 
 from endpoints import cities, picnics, users
 

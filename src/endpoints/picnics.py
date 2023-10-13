@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Query, APIRouter
+from database import engine, Session, Base, Picnic, PicnicRegistration, City, User
 import datetime as dt
-from database import engine, Session, Base, Picnic, PicnicRegistration, City
 
 router = APIRouter(
     prefix="/picnics",
@@ -36,10 +36,10 @@ def all_picnics(datetime: dt.datetime = Query(default=None, description='Вре�
 
 @router.post('/picnic-add/', summary='Picnic Add')
 def picnic_add(city_id: int = Query(default=None, description='ID города'), 
-               datetime: dt.datetime = Query(default=None, description='Время провождения пикника')):
+               datetime: dt.datetime = Query(..., description='Время провождения пикника')):
     city = Session().query(City).filter(City.id == city_id).first()
     if city is None:
-        raise HTTPException(status_code=400, detail='Города с указанным city_id не существует')
+        raise HTTPException(status_code=400, detail='Город с указанным city_id не существует')
     
     p = Picnic(city_id=city_id, time=datetime)
     s = Session()
@@ -53,9 +53,31 @@ def picnic_add(city_id: int = Query(default=None, description='ID города')
     }
 
 @router.post('/picnic-register/', summary='Picnic Registration')
-def register_to_picnic(*_, **__,):
+def register_to_picnic(user_id: int = Query(..., description='ID пользователя'),
+                       picnic_id: int = Query(..., description='ID пикника')):
     """
     Регистрация пользователя на пикник
     """
-    # TODO: Сделать логику
-    return ...
+    user = Session().query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=400, detail='Пользователя с указанным user_id не существует')
+
+    picnic_and_city = Session().query(Picnic, City).join(City, Picnic.city_id == City.id).filter(Picnic.id == picnic_id).first()
+    if picnic_and_city is None:
+        raise HTTPException(status_code=400, detail='Пикника с указанным picnic_id не существует')
+    
+    existing_registration = Session().query(PicnicRegistration).filter(PicnicRegistration.user_id == user_id, PicnicRegistration.picnic_id == picnic_id).first()
+    if existing_registration is not None:
+        raise HTTPException(status_code=400, detail='Пользователь уже зарегистрирован на этот пикник')
+    
+    pr = PicnicRegistration(user_id=user_id, picnic_id=picnic_id)
+    s = Session()
+    s.add(pr)
+    s.commit()
+    
+    return {
+        'id': pr.id,
+        'name': user.name,
+        'city': picnic_and_city.City.name,
+        'time': picnic_and_city.Picnic.time,
+    }
