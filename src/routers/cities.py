@@ -16,9 +16,9 @@ def create_city(model: CreateCityModel = Depends()) -> BaseCityModel:
     """
     Создание города по его названию
     """
-    weather = GetWeatherRequest().get_weather(model.name)
-    if not weather:
-        raise HTTPException(status_code=400, detail='Параметр name должен быть существующим городом')
+    check = GetWeatherRequest()
+    if not check.get_weather(model.name):
+        raise HTTPException(status_code=404, detail='Параметр name должен быть существующим городом')
     
     s = Session()
     city_object = s.query(City).filter(City.name == model.name.capitalize()).first()

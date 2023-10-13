@@ -2,7 +2,7 @@ from typing import List
 from fastapi import HTTPException, Query, APIRouter, Depends
 from pydantic import parse_obj_as
 from database import engine, Session, Base, User
-from models import GetUsersModel, RegisterUserRequest, UserModel
+from models import GetUsersModel, CreateUserModel, BaseUserModel
 
 router = APIRouter(
     prefix="/users",
@@ -10,8 +10,8 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get('/', summary='Users List', response_model=List[UserModel])
-def users_list(model: GetUsersModel = Depends()) -> List[UserModel]:
+@router.get('/', summary='Users List', response_model=List[BaseUserModel])
+def users_list(model: GetUsersModel = Depends()) -> List[BaseUserModel]:
     """
     Список пользователей
     """
@@ -23,10 +23,10 @@ def users_list(model: GetUsersModel = Depends()) -> List[UserModel]:
 
     users = users.all()
 
-    return parse_obj_as(List[UserModel], users)
+    return parse_obj_as(List[BaseUserModel], users)
 
-@router.post('/', summary='Create User', response_model=UserModel)
-def register_user(user: RegisterUserRequest):
+@router.post('/', summary='Create User', response_model=BaseUserModel)
+def register_user(user: CreateUserModel) -> BaseUserModel:
     """
     Регистрация пользователя
     """
@@ -35,4 +35,4 @@ def register_user(user: RegisterUserRequest):
     s.add(user_object)
     s.commit()
 
-    return UserModel.from_orm(user_object)
+    return BaseUserModel.from_orm(user_object)
