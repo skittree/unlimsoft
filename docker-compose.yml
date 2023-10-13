@@ -8,15 +8,19 @@ services:
     build:
       context: .
       target: backend
+      args:
+        - PORT=${PORT}
     environment:
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
       - DATABASE_NAME=testcrt
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=password
-    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    command: "uvicorn main:app --host 0.0.0.0 --port ${PORT}"
     ports:
-    - 8000:8000
+    - "${PORT}:${PORT}"
+    env_file:
+      - ./.env
     networks:
       backend:
 
@@ -25,10 +29,10 @@ services:
     restart: always
     image: postgres:13-alpine
     container_name: postgres
-    environment:
-      - POSTGRES_DB=testcrt
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    env_file:
+      - ./.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
