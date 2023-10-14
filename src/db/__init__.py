@@ -7,6 +7,10 @@ from config import DATABASE_URL
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=engine)
 
+def get_session():
+    with Session() as session:
+        yield session
+
 Base = declarative_base()
 
 from .cities import City

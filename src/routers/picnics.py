@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from pydantic import parse_obj_as
 
 import crud
-from db import Session
+from db import get_session
 from models.picnics import CreatePicnicModel, GetPicnicsModel, BasePicnicModel, CreatePicnicUser, PicnicUsersModel, PicnicUserModel
 from models.users import BaseUserModel
 
@@ -14,11 +14,10 @@ router = APIRouter(
 )
 
 @router.get('/', summary='Picnics List', response_model=List[PicnicUsersModel])
-def get_picnics(model: GetPicnicsModel = Depends()) -> List[PicnicUsersModel]:
+def get_picnics(model: GetPicnicsModel = Depends(), session = Depends(get_session)) -> List[PicnicUsersModel]:
     """
     Список всех пикников
     """
-    session = Session()
     picnics = crud.picnics.get_list(session, model)
     output = [PicnicUsersModel(id=picnic.id, 
                                city=picnic.city.name, 
@@ -28,11 +27,10 @@ def get_picnics(model: GetPicnicsModel = Depends()) -> List[PicnicUsersModel]:
     return output
 
 @router.post('/', summary='Create Picnic', response_model=BasePicnicModel)
-def create_picnic(model: CreatePicnicModel = Depends()) -> BasePicnicModel:
+def create_picnic(model: CreatePicnicModel = Depends(), session = Depends(get_session)) -> BasePicnicModel:
     """
     Создать пикник
     """
-    session = Session()
     picnic = crud.picnics.create(session, model)
     return BasePicnicModel(
         id=picnic.id,
@@ -41,11 +39,10 @@ def create_picnic(model: CreatePicnicModel = Depends()) -> BasePicnicModel:
     )
 
 @router.post('/{picnic_id}/register', summary='Picnic Registration', response_model=PicnicUserModel)
-def register_to_picnic(model: CreatePicnicUser = Depends()) -> PicnicUserModel:
+def register_to_picnic(model: CreatePicnicUser = Depends(), session = Depends(get_session)) -> PicnicUserModel:
     """
     Регистрация пользователя на пикник
     """
-    session = Session()
     picnic, user = crud.picnics.register_user(session, model)
     return PicnicUserModel(
         id = picnic.id,
