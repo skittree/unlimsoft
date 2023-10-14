@@ -10,12 +10,6 @@ services:
       target: backend
       args:
         - PORT=${PORT}
-    environment:
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=testcrt
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=password
     command: "uvicorn main:app --host 0.0.0.0 --port ${PORT}"
     ports:
     - "${PORT}:${PORT}"
