@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from pydantic import parse_obj_as
 
 import crud
+from db import Session
 from models.picnics import CreatePicnicModel, GetPicnicsModel, BasePicnicModel, CreatePicnicUser, PicnicUsersModel, PicnicUserModel
 from models.users import BaseUserModel
 
@@ -17,7 +18,8 @@ def get_picnics(model: GetPicnicsModel = Depends()) -> List[PicnicUsersModel]:
     """
     Список всех пикников
     """
-    picnics = crud.picnics.get_list(model)
+    session = Session()
+    picnics = crud.picnics.get_list(session, model)
     output = [PicnicUsersModel(id=picnic.id, 
                                city=picnic.city.name, 
                                time=picnic.time, 
@@ -30,7 +32,8 @@ def create_picnic(model: CreatePicnicModel = Depends()) -> BasePicnicModel:
     """
     Создать пикник
     """
-    picnic = crud.picnics.create(model)
+    session = Session()
+    picnic = crud.picnics.create(session, model)
     return BasePicnicModel(
         id=picnic.id,
         city=picnic.city.name,
@@ -42,7 +45,8 @@ def register_to_picnic(model: CreatePicnicUser = Depends()) -> PicnicUserModel:
     """
     Регистрация пользователя на пикник
     """
-    picnic, user = crud.picnics.register_user(model)
+    session = Session()
+    picnic, user = crud.picnics.register_user(session, model)
     return PicnicUserModel(
         id = picnic.id,
         city = picnic.city.name,

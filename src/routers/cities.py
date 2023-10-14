@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from pydantic import parse_obj_as
 
 import crud
+from db import Session
 from models.cities import BaseCityModel, CreateCityModel, GetCityModel
 
 router = APIRouter(
@@ -16,7 +17,8 @@ def get_cities(model: GetCityModel = Depends()) -> List[BaseCityModel]:
     """
     Получение списка городов
     """
-    cities = crud.cities.get_list(model)
+    session = Session()
+    cities = crud.cities.get_list(session, model)
     return parse_obj_as(List[BaseCityModel], cities)
 
 @router.post('/', summary='Create City', response_model=BaseCityModel)
@@ -24,5 +26,6 @@ def create_city(model: CreateCityModel = Depends()) -> BaseCityModel:
     """
     Создание города по его названию
     """
-    city_object = crud.cities.create(model)
+    session = Session()
+    city_object = crud.cities.create(session, model)
     return BaseCityModel.from_orm(city_object)

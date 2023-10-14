@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.logger import logger
+import logging
 
 from routers import cities, picnics, users
 
