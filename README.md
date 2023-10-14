@@ -28,3 +28,41 @@
 ## Невыполненные задания
   - Сделать логирование в файл, который не будет очищаться после перезапуска в докере
   - Описать правильную архитектуру для проекта
+
+## Тестирование
+```
+> pytest tests.py -vv
+
+tests.py::test_create_city1 PASSED
+tests.py::test_create_city2 PASSED
+tests.py::test_create_city2_lowercase PASSED
+tests.py::test_create_city3_error PASSED
+tests.py::test_create_nofield PASSED
+tests.py::test_create_city3 PASSED
+tests.py::test_get PASSED
+tests.py::test_get_city3 PASSED
+tests.py::test_get_city3_wrongfilter PASSED
+tests.py::test_get_empty_userlist PASSED
+tests.py::test_create_user1 PASSED
+tests.py::test_create_user_nofield PASSED
+tests.py::test_create_user2_nofield PASSED
+tests.py::test_create_user2 PASSED
+tests.py::test_create_user3 PASSED
+tests.py::test_get_userlist PASSED
+tests.py::test_get_filtered_userlist PASSED
+tests.py::test_get_empty PASSED
+tests.py::test_create_picnic_error PASSED
+tests.py::test_create_picnic1 PASSED
+tests.py::test_create_nofield1_picnic2 PASSED
+tests.py::test_create_nofield2_picnic2 PASSED
+tests.py::test_get_without_users1 PASSED
+tests.py::test_create_picnic2 PASSED
+tests.py::test_get_without_users_both PASSED
+tests.py::test_get_without_users2 PASSED
+tests.py::test_register1_picnic1 PASSED
+tests.py::test_register2_picnic1 PASSED
+tests.py::test_get_both PASSED
+tests.py::test_get_by_time PASSED
+
+30 passed in 8.31s
+```
