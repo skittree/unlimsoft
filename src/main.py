@@ -1,10 +1,16 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, APIRouter
 from fastapi.logger import logger
 import logging
 
 from routers import cities, picnics, users
 
-app = FastAPI(prefix='/api')
-app.include_router(cities.router)
-app.include_router(picnics.router)
-app.include_router(users.router)
+app = FastAPI()
+mainrouter = APIRouter(
+    prefix="/api",
+    responses={404: {"description": "Not found"}},
+)
+
+mainrouter.include_router(cities.router)
+mainrouter.include_router(picnics.router)
+mainrouter.include_router(users.router)
+app.include_router(mainrouter)
