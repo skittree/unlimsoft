@@ -5,7 +5,7 @@ from config import DATABASE_URL
 
 # Создание сессии
 engine = create_engine(DATABASE_URL)
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Session = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=engine)
 
 Base = declarative_base()
 

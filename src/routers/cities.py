@@ -1,9 +1,8 @@
 from typing import List
-from fastapi import HTTPException, APIRouter, Depends
+from fastapi import APIRouter, Depends
 from pydantic import parse_obj_as
 
-from db import Session, City
-from ext.external_requests import GetWeatherRequest
+import crud
 from models.cities import BaseCityModel, CreateCityModel, GetCityModel
 
 router = APIRouter(
@@ -17,13 +16,7 @@ def get_cities(model: GetCityModel = Depends()) -> List[BaseCityModel]:
     """
     Получение списка городов
     """
-    query = Session().query(City)
-    
-    if model.name is not None:
-        query = query.filter(City.name == model.name.capitalize())
-    
-    cities = query.all()
-
+    cities = crud.cities.get_list(model)
     return parse_obj_as(List[BaseCityModel], cities)
 
 @router.post('/', summary='Create City', response_model=BaseCityModel)
@@ -31,15 +24,5 @@ def create_city(model: CreateCityModel = Depends()) -> BaseCityModel:
     """
     Создание города по его названию
     """
-    check = GetWeatherRequest()
-    if not check.get_weather(model.name):
-        raise HTTPException(status_code=404, detail='Параметр name должен быть существующим городом')
-    
-    s = Session()
-    city_object = s.query(City).filter(City.name == model.name.capitalize()).first()
-    if city_object is None:
-        city_object = City(name=model.name.capitalize())
-        s.add(city_object)
-        s.commit()
-
+    city_object = crud.cities.create(model)
     return BaseCityModel.from_orm(city_object)
