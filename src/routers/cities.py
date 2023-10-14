@@ -1,9 +1,10 @@
 from typing import List
-from fastapi import HTTPException, Query, APIRouter, Depends
+from fastapi import HTTPException, APIRouter, Depends
 from pydantic import parse_obj_as
-from database import engine, Session, Base, City
-from external_requests import GetWeatherRequest
-from models import BaseCityModel, CreateCityModel, GetCityModel
+
+from db import Session, City
+from ext.external_requests import GetWeatherRequest
+from models.cities import BaseCityModel, CreateCityModel, GetCityModel
 
 router = APIRouter(
     prefix="/cities",

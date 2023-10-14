@@ -1,10 +1,12 @@
 from typing import List
-from fastapi import HTTPException, Query, APIRouter, Depends
+from fastapi import HTTPException, APIRouter, Depends
 from pydantic import parse_obj_as
 from sqlalchemy.orm import joinedload
-from database import engine, Session, Base, Picnic, PicnicRegistration, City, User
 import datetime as dt
-from models import CreatePicnicModel, GetPicnicsModel, BasePicnicModel, CreatePicnicUser, PicnicUsersModel, PicnicUserModel, BaseUserModel
+
+from db import Session, City, Picnic, PicnicRegistration, User
+from models.picnics import CreatePicnicModel, GetPicnicsModel, BasePicnicModel, CreatePicnicUser, PicnicUsersModel, PicnicUserModel
+from models.users import BaseUserModel
 
 router = APIRouter(
     prefix="/picnics",

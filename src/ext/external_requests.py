@@ -21,3 +21,4 @@ class GetWeatherRequest():
             return weather
         else:
             return None
+        # can add a raise exception here for non 404 responses. do i need to?

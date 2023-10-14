@@ -1,8 +1,9 @@
 from typing import List
-from fastapi import HTTPException, Query, APIRouter, Depends
+from fastapi import APIRouter, Depends
 from pydantic import parse_obj_as
-from database import engine, Session, Base, User
-from models import GetUsersModel, CreateUserModel, BaseUserModel
+
+from db import Session, User 
+from models.users import GetUsersModel, CreateUserModel, BaseUserModel
 
 router = APIRouter(
     prefix="/users",
@@ -26,11 +27,11 @@ def get_users(model: GetUsersModel = Depends()) -> List[BaseUserModel]:
     return parse_obj_as(List[BaseUserModel], users)
 
 @router.post('/', summary='Create User', response_model=BaseUserModel)
-def create_user(user: CreateUserModel) -> BaseUserModel:
+def create_user(model: CreateUserModel) -> BaseUserModel:
     """
     Регистрация пользователя
     """
-    user_object = User(**user.dict())
+    user_object = User(**model.dict())
     s = Session()
     s.add(user_object)
     s.commit()
