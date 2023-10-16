@@ -10,7 +10,7 @@ services:
       target: backend
       args:
         - PORT=${PORT}
-    command: "uvicorn main:app --host 0.0.0.0 --port ${PORT}"
+    command: "uvicorn main:app --host 0.0.0.0 --port ${PORT} --log-level info --log-config logging.conf"
     ports:
     - "${PORT}:${PORT}"
     env_file:
