@@ -1,7 +1,7 @@
 from db import Picnic, PicnicRegistration, City, User
 from models.picnics import GetPicnicsModel, CreatePicnicModel, CreatePicnicUser
 from fastapi import HTTPException
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 import datetime as dt
 
 # можно добавить кастомные exception'ы и ловить их вместо стандартного HTTPException
@@ -12,7 +12,7 @@ def get_list(session, model: GetPicnicsModel):
         picnics = picnics.filter(Picnic.time == model.time)
     if not model.past:
         picnics = picnics.filter(Picnic.time >= dt.datetime.now())
-    picnics = picnics.options(joinedload(Picnic.users)).all()
+    picnics = picnics.options(selectinload(Picnic.users)).all() # n-n selectinload, 1-n joinedload 
 
     return picnics
 

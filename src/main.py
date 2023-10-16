@@ -1,5 +1,8 @@
 from fastapi import FastAPI, APIRouter
 from routers import cities, picnics, users
+import logging
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 main_router = APIRouter(
